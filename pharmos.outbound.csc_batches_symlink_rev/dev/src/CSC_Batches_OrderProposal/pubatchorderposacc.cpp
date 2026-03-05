@@ -5,12 +5,12 @@
 #include "pubatchorderposdm_definitions.h"
 #include <libutil/misc/metaclassmacro_definitions.h>
 #include <libbasarproperty_propertydescriptionlistref.h>
-
 #include <libbasardbaspect_accessorpropertytable.h>
-
 #include <libbasarproperty.h>
 #include <libbasar_definitions.h>
 #include <libbasarcmnutil_parameterlist.h> 
+
+#include "libabbauw_properties_definitions.h"  // required for PURCHASE_DB / PURCHASE_DBSRV
 
 namespace acc_pubatchorderpos {
 
@@ -30,6 +30,10 @@ namespace acc_pubatchorderpos {
 			PROPERTY_DESCRIPTION_LIST_ADD( PURCHASE_ORDER_NO);
 			PROPERTY_DESCRIPTION_LIST_ADD( DATE_OF_PURCHASE);
             PROPERTY_DESCRIPTION_LIST_ADD( EXPECTED_GI_DATE);
+
+            // Added for remote dblink qualification
+            PROPERTY_DESCRIPTION_LIST_ADD( PURCHASE_DB );
+            PROPERTY_DESCRIPTION_LIST_ADD( PURCHASE_DBSRV );
         END_PROPERTY_DESCRIPTION_LIST
 
 		ACCESS_METHOD( pubatchorderposdm::lit::SELECT_PU_BATCH_ORDER_POSITIONS );
@@ -71,7 +75,9 @@ namespace acc_pubatchorderpos {
 			+		REASON_ID.getName() + ", "
 			+		ORDER_PROPOSAL_NO.getName() + ", "
             +       EXPECTED_GI_DATE.getName()
-            + " FROM  cscpubatchorderpos"
+            + " FROM "
+		+ PURCHASE_DB.toSQLReplacementString() + "@"
+            	+ PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos"
 		);
 
     	resolve( sql );
@@ -100,7 +106,9 @@ namespace acc_pubatchorderpos {
         // const attributes
         /////////////////////////////////////////////////////////////////////////////////////////////////		
         static const basar::VarString sql(  
-            "INSERT INTO cscpubatchorderpos "
+            "INSERT INTO "
+		+ PURCHASE_DB.toSQLReplacementString() + "@"
+            	+ PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
 			"("
 			+			BRANCH_NO.getName()
 			+ ", " +	ARTICLE_NO.getName()
