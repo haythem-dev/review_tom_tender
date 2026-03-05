@@ -131,8 +131,8 @@ namespace libabbauw
 		CONST_PROPERTY_DESCRIPTION( COLOR,						"color",						basar::INT16	)
 		CONST_PROPERTY_DESCRIPTION( STOCK,						"stock",						basar::INT32    )  // Freiverkaufsmenge = Bestand ohne Reservierungen
 		CONST_PROPERTY_DESCRIPTION( STOCKACCUMULATED,			"stockaccumulated",				basar::INT32    )  // Freiverkaufsmenge kumuliert = Bestand ohne Reservierungen
-		CONST_PROPERTY_DESCRIPTION( BACKORDER,					"backorder",					basar::INT32    )  // OBM-W= wirksamer Orderrückstand
-		CONST_PROPERTY_DESCRIPTION( BACKORDER_NOT_EFFECTIVE,	"backorder_noteffective",		basar::INT32	)  // OBM-U= unwirksamer Orderrückstand
+		CONST_PROPERTY_DESCRIPTION( BACKORDER,					"backorder",					basar::INT32    )  // OBM-W= wirksamer OrderrÃ¼ckstand
+		CONST_PROPERTY_DESCRIPTION( BACKORDER_NOT_EFFECTIVE,	"backorder_noteffective",		basar::INT32	)  // OBM-U= unwirksamer OrderrÃ¼ckstand
         CONST_PROPERTY_DESCRIPTION( PSEUDOSTORAGELOCATIONSLOT,  "pseudostoragelocationslot",    basar::STRING	)
 		CONST_PROPERTY_DESCRIPTION( RESERVEDQTY,                "reservedqty",					basar::INT32    )
 		CONST_PROPERTY_DESCRIPTION( CMIRESERVEDQTY,				"cmireservedqty",				basar::INT32	)
@@ -145,7 +145,7 @@ namespace libabbauw
 		CONST_PROPERTY_DESCRIPTION( PROGNAME,					"progname",						basar::STRING	)
 		CONST_PROPERTY_DESCRIPTION( PURPOSE,                    "purpose",                      basar::STRING	) // zweck
 		CONST_PROPERTY_DESCRIPTION( PARAMETERNAME,				"parametername",				basar::STRING	)
-		CONST_PROPERTY_DESCRIPTION( MANIFESTATION,				"manifestation",				basar::STRING	) // Ausprägung
+		CONST_PROPERTY_DESCRIPTION( MANIFESTATION,				"manifestation",				basar::STRING	) // AusprÃ¤gung
 
         // orderproposal
 		CONST_PROPERTY_DESCRIPTION( DATE_OF_PURCHASE,			"dateofpurchase",				basar::INT32    )
@@ -192,7 +192,9 @@ namespace libabbauw
 
 		//needed for cscbatchhistory
 		CONST_PROPERTY_DESCRIPTION( MINAGEFORORDERPROTOCOL,		"minagefororderprotocol",		basar::DATETIME )
-
+		//
+		CONST_PROPERTY_DESCRIPTION( PURCHASE_DB,				"purchasedb",					basar::STRING )
+		CONST_PROPERTY_DESCRIPTION( PURCHASE_DBSRV,				"purchasedbsrv",				basar::STRING )
 	}	// end namespace properties
 }	// end namespace libabbauw
 
