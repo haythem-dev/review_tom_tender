@@ -67,7 +67,9 @@ namespace purchaseBatchOrder
 
         bool executable = isContainedAndSet( properties::BRANCHNO.getName() ) 
                        && isContainedAndSet( properties::ORDERNO ) 
-                       && isContainedAndSet( properties::ARTICLENO );
+                       && isContainedAndSet( properties::ARTICLENO )
+                       && isContainedAndSet( properties::PURCHASE_DB.getName() )
+                       && isContainedAndSet( properties::PURCHASE_DBSRV.getName() );
 
         CHECK_EXECUTABILITY( getPropertyList(), logger, fun );
 
@@ -117,7 +119,9 @@ namespace purchaseBatchOrder
         const bool executable = are1stPropertiesSetAnd2ndOneInState( properties::BRANCHNO.toPropertyString()       +
                                                                      properties::ORDERNO.toPropertyString()        +
                                                                      properties::ORDERNO_UPDATE.toPropertyString() +
-                                                                     properties::ARTICLENO.toPropertyString(),
+                                                                     properties::ARTICLENO.toPropertyString()      +
+                                                                     properties::PURCHASE_DB.toPropertyString()    +
+                                                                     properties::PURCHASE_DBSRV.toPropertyString(),
                                                                      properties::ORDERNO_UPDATE.toPropertyString(),
                                                                      basar::SS_UPDATE );
 
@@ -158,7 +162,9 @@ namespace purchaseBatchOrder
 
         bool executable = arePropertiesSet( properties::BRANCHNO.toPropertyString()            +
                                             properties::ORDERNO.toPropertyString()             +
-                                            properties::ARTICLENO.toPropertyString()
+                                            properties::ARTICLENO.toPropertyString()           +
+                                            properties::PURCHASE_DB.toPropertyString()         +
+                                            properties::PURCHASE_DBSRV.toPropertyString()
                                           );
 
         CHECK_EXECUTABILITY( getPropertyList(), logger, fun );
