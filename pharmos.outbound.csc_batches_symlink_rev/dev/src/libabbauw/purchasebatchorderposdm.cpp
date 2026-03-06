@@ -240,7 +240,9 @@ namespace purchaseBatchOrder
         {
             m_SearchYIterator = boost::make_shared< libutil::domMod::SearchYIterator >( properties::BRANCHNO.toDescriptionString() +
                                                                                         properties::ORDERNO.toDescriptionString()  +
-                                                                                        properties::ARTICLENO.toDescriptionString()
+                                                                                        properties::ARTICLENO.toDescriptionString() +
+                                                                                        properties::PURCHASE_DB.toDescriptionString() +
+                                                                                        properties::PURCHASE_DBSRV.toDescriptionString()
                                                                                       );
         }
 
