@@ -1,0 +1,82 @@
+analysis
+_____________________________
+Root Cause of the Exception in SelectPurchaseBatchOrderPosByKey::buildSQLString()
+Background: What Changed
+Both purchasebatchorderposacc.cpp and pubatchorderposacc.cpp were modified to qualify the pubatchorderpos table with a remote database link. The original SQL was:
+
+FROM pubatchorderpos pbop
+After the change it became:
+
+FROM #purchasedb#@#purchasedbsrv#:pubatchorderpos pbop
+Where #purchasedb# and #purchasedbsrv# are basar-framework SQL replacement tokens. The toSQLReplacementString() method (defined in libbasarproperty_propertydescription.h) wraps a property name in #...#, giving #purchasedb# and #purchasedbsrv#. The basar resolve(sql) call is then supposed to substitute these with actual string values from the current property row.
+
+The Exact Problem: resolve() Cannot Find the Property Values
+Inside buildSQLString(), after the static SQL template is built, this line executes:
+
+resolve( sql );
+This is where the exception is thrown. The resolve() function looks in the property row passed to execute() for the values of PURCHASE_DB ("purchasedb") and PURCHASE_DBSRV ("purchasedbsrv"). It cannot find them because they are never set by the calling code.
+
+Tracing the Call Chain
+In PurchaseBatchOrderPosDM::findByKey() (which runs before the delete to fetch the record):
+
+executeResultInfo = m_Accessor->execute( SELECT_PURCHASE_BATCH_ORDER_POS_BY_KEY, yitSearch );
+The yitSearch iterator comes from getSearchYIterator():
+
+m_SearchYIterator = boost::make_shared<libutil::domMod::SearchYIterator>(
+    properties::BRANCHNO.toDescriptionString() +
+    properties::ORDERNO.toDescriptionString()  +
+    properties::ARTICLENO.toDescriptionString()
+);
+This iterator carries only three properties: BRANCHNO, ORDERNO, ARTICLENO. When the accessor executes, resolve(sql) encounters #purchasedb# and #purchasedbsrv# in the SQL template but finds no values for them in the iterator's property row → exception thrown.
+
+The same problem then applies to erase() which uses get() (the full property row), since PURCHASE_DB and PURCHASE_DBSRV are also never populated into that row at any point.
+
+Note also that isExecutable() only validates BRANCHNO, ORDERNO, and ARTICLENO — it does not check for PURCHASE_DB/PURCHASE_DBSRV, so it returns true and execution proceeds into buildSQLString() / resolve(), where the crash happens.
+
+Why pubatchorderposacc.cpp Did Not Crash
+The pubatchorderposacc.cpp accessor (in the CSC_Batches_OrderProposal module) was also changed the same way. If it is working, it is because the calling use-case in CSC_Batches_OrderProposal already sets PURCHASE_DB and PURCHASE_DBSRV values (reading them from a configuration/parameter table) before calling the accessor. That pattern was not replicated in PurchaseBatchOrderPosDM.
+
+Summary of Root Cause
+What was added	What was forgotten
+PURCHASE_DB / PURCHASE_DBSRV added to the property description list of ACC_PURCHASE_BATCH_ORDER_POS	No code in PurchaseBatchOrderPosDM (or its callers) ever sets the values of PURCHASE_DB / PURCHASE_DBSRV before calling execute()
+SQL templates now contain #purchasedb#@#purchasedbsrv#:...	getSearchYIterator() only declares BRANCHNO/ORDERNO/ARTICLENO — no PURCHASE_DB/PURCHASE_DBSRV
+isExecutable() should guard against bad state	isExecutable() doesn't check PURCHASE_DB / PURCHASE_DBSRV, so the guard is silent
+The Fix
+Wherever the PurchaseBatchOrderPosDM accessor is initialized and its search iterator populated (likely in a use-case class or controller), you need to also set PURCHASE_DB and PURCHASE_DBSRV from the same configuration source used in the CSC_Batches_OrderProposal flow — before calling findByKey(), save(), or erase().
+
+Concretely, before calling findByKey():
+
+yitSearch.setString( libabbauw::properties::PURCHASE_DB,    <value from config> );
+yitSearch.setString( libabbauw::properties::PURCHASE_DBSRV, <value from config> );
+And when building the get() row (the accessor's internal table), the same values must be injected there too, so DeletePurchaseBatchOrderPos::buildSQLString() can also resolve them when erase() is called.
+
+
+Impacted Files & Detailed Fixes
+The exception occurs because the SQL template now requires two properties (PURCHASE_DB and PURCHASE_DBSRV) that are not being provided by the calling code.
+
+1. pharmos.outbound.csc_batches_symlink_rev/dev/src/libabbauw/infrastructure/accessor/purchasebatchorder/purchasebatchorderposacc.cpp
+Change: Update isExecutable() to ensure the database link properties are present.
+Detailed Fix:
+Add checks for properties::PURCHASE_DB and properties::PURCHASE_DBSRV in SelectPurchaseBatchOrderPosByKey::isExecutable(), UpdatePurchaseBatchOrderPos::isExecutable(), and DeletePurchaseBatchOrderPos::isExecutable(). This prevents the resolve() crash by providing a clear "not executable" error if they are missing.
+
+2. pharmos.outbound.csc_batches_symlink_rev/dev/src/libabbauw/purchasebatchorderposdm.cpp
+Change: Update getSearchYIterator() to include the required database properties.
+Detailed Fix:
+
+m_SearchYIterator = boost::make_shared< libutil::domMod::SearchYIterator >( 
+    properties::BRANCHNO.toDescriptionString() +
+    properties::ORDERNO.toDescriptionString()  +
+    properties::ARTICLENO.toDescriptionString() +
+    properties::PURCHASE_DB.toDescriptionString() +    // Added
+    properties::PURCHASE_DBSRV.toDescriptionString()   // Added
+);
+3. Calling Use-Cases (e.g., batchorderposuc.cpp or transferorderposuc.cpp)
+Change: Inject the database link values before calling the domain model.
+Detailed Fix:
+In the code that handles deleting/selecting positions, you must fetch the database name and server (usually from a configuration table like app_param) and set them on the search iterator:
+
+yitSearch.setString( libabbauw::properties::PURCHASE_DB, dbName );
+yitSearch.setString( libabbauw::properties::PURCHASE_DBSRV, dbServer );
+posDm->findByKey( yitSearch );
+Summary of the Fix
+The root cause is a "data contract" mismatch: the SQL now demands @purchasedb@purchasedbsrv, but the code that deletes the position only provides Branch/Order/Article. By adding these properties to the search iterator and ensuring they are populated from the application's configuration at runtime, the resolve() call will succeed and the correct remote SQL will be generated.
