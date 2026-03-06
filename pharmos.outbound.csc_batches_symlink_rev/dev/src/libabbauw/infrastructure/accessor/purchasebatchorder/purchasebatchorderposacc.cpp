@@ -37,6 +37,8 @@ namespace purchaseBatchOrder
 			PROPERTY_DESCRIPTION_LIST_ADD( properties::ORDER_PROP_PROCESSED_TIME );
 			PROPERTY_DESCRIPTION_LIST_ADD( properties::ORDER_PROP_NO             );
 			PROPERTY_DESCRIPTION_LIST_ADD( properties::PURCHASEORDERNO           );
+			PROPERTY_DESCRIPTION_LIST_ADD( properties::PURCHASE_DB 			);
+            		PROPERTY_DESCRIPTION_LIST_ADD( properties::PURCHASE_DBSRV 		);
         END_PROPERTY_DESCRIPTION_LIST
 
         ACCESS_METHOD( lit::SELECT_PURCHASE_BATCH_ORDER_POS_BY_KEY )
@@ -88,7 +90,9 @@ namespace purchaseBatchOrder
 				+ ", pbop.orderproposalprocessedtime AS "              + properties::ORDER_PROP_PROCESSED_TIME.getName()
 				+ ", pbop.orderproposalno AS "                         + properties::ORDER_PROP_NO.getName()
 				+ ", pbop.purchaseorderno AS "                         + properties::PURCHASEORDERNO.getName()
-            + " FROM cscpubatchorderpos pbop"
+            + " FROM "
+	    + properties::PURCHASE_DB.toSQLReplacementString() + "@"
+            + properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos pbop"
             + " WHERE pbop.branchno = "                                + properties::BRANCHNO.toSQLReplacementString()
             + " AND pbop.ordernobatch = "                              + properties::ORDERNO.toSQLReplacementString()
             + " AND pbop.articleno = "                                 + properties::ARTICLENO.toSQLReplacementString()
@@ -127,12 +131,14 @@ namespace purchaseBatchOrder
 		BLOG_TRACE_METHOD( LoggerPool::loggerOrderProposal, fun );
 
 		static const basar::VarString sql(
-			"UPDATE cscpubatchorderpos SET "
-            " ordernobatch = "                  + properties::ORDERNO_UPDATE.toSQLReplacementString() +
-            " WHERE branchno = "                + properties::BRANCHNO.toSQLReplacementString()       +
-            " AND ordernobatch = "              + properties::ORDERNO.toSQLReplacementString()        +
-            " AND articleno = "                 + properties::ARTICLENO.toSQLReplacementString()      +
-            " AND ordertypebatch = 1"
+		"UPDATE "
+		+ properties::PURCHASE_DB.toSQLReplacementString() + "@"
+            	+ properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos SET "
+            		" ordernobatch = "                  + properties::ORDERNO_UPDATE.toSQLReplacementString() +
+            		" WHERE branchno = "                + properties::BRANCHNO.toSQLReplacementString()       +
+            		" AND ordernobatch = "              + properties::ORDERNO.toSQLReplacementString()        +
+            		" AND articleno = "                 + properties::ARTICLENO.toSQLReplacementString()      +
+            		" AND ordertypebatch = 1"
 		);
 		
     	resolve( sql );
@@ -165,11 +171,13 @@ namespace purchaseBatchOrder
 		BLOG_TRACE_METHOD( LoggerPool::loggerOrderProposal, fun );
 
 		static const basar::VarString sql(
-			"DELETE FROM cscpubatchorderpos "
-            " WHERE branchno = "                + properties::BRANCHNO.toSQLReplacementString()       +
-            " AND ordernobatch = "              + properties::ORDERNO.toSQLReplacementString()        +
-            " AND articleno = "                 + properties::ARTICLENO.toSQLReplacementString()      +
-            " AND ordertypebatch = 1"
+		"DELETE FROM "
+		+ properties::PURCHASE_DB.toSQLReplacementString() + "@"
+            	+ properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
+            		" WHERE branchno = "                + properties::BRANCHNO.toSQLReplacementString()       +
+            		" AND ordernobatch = "              + properties::ORDERNO.toSQLReplacementString()        +
+            		" AND articleno = "                 + properties::ARTICLENO.toSQLReplacementString()      +
+            		" AND ordertypebatch = 1"
 		);
 		
     	resolve( sql );
