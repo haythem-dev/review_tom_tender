@@ -129,7 +129,12 @@ namespace cscUnitTest
 			////printf("%i", rr.getFetchedRows());
 			////CHECK(rr.getFetchedRows()>=4);
 
-			sql = "SELECT * FROM cscpubatchorderpos WHERE ("+ BRANCH_NO.getName() + "= 90) AND (" + ARTICLE_NO.getName() + "= 99999999) AND ("+ORDER_NO_BATCH.getName()+"= 2) ";
+			sql = "SELECT * "
+			+ properties::PURCHASE_DB.toSQLReplacementString() + "@"
+                        + properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
+			"WHERE ("+ BRANCH_NO.getName() + "= 90) "
+			"AND (" + ARTICLE_NO.getName() + "= 99999999) "
+			"AND ("+ ORDER_NO_BATCH.getName() +"= 2) ";
 
 			rr = stmtRef.executeQuery(sql);
 			
@@ -181,4 +186,3 @@ namespace cscUnitTest
 
 	} // end TESTSUITE
 } // end namespace cscUnitTest
-
