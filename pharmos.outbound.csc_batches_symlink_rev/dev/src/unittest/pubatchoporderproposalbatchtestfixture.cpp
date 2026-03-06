@@ -80,13 +80,15 @@ namespace cscUnitTest
 	void PuBatchOrderPosOPBatchTestFixture::cleanupDBTables()
 	{
 		//cleaning the datatables after testing
-		/*printf("cleaning the datatables orderpos/aorderpos/orderhead/aorderhead after testing");
-		printf("\n");*/	
-
-		basar::db::sql::StatementRef statement = getSQLConnectionP().createStatement();
-		basar::VarString sql_cleanup("DELETE FROM cscpubatchorderpos WHERE (" + properties::BRANCH_NO.getName() + " = 90) AND (" + properties::ARTICLE_NO.getName() + ">=99999990); ");
-		statement.execute(sql_cleanup);
-		
+	    	basar::db::sql::StatementRef statement = getSQLConnectionP().createStatement();
+            	basar::VarString sql_cleanup(
+                "DELETE FROM "
+                + properties::PURCHASE_DB.toSQLReplacementString() + "@"
+                + properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
+                "WHERE (" + properties::BRANCH_NO.getName() + " = 90) "
+                "AND (" + properties::ARTICLE_NO.getName() + ">=99999990); "
+            );
+            statement.execute(sql_cleanup);
 	}
 
 	void PuBatchOrderPosOPBatchTestFixture::prepareDBTables()
@@ -101,7 +103,8 @@ namespace cscUnitTest
 		//status 2, orderdate<given value, will be archived
 		basar::VarString sql(	
 			"INSERT INTO " 
-			"cscpubatchorderpos " 
+			+ properties::PURCHASE_DB.toSQLReplacementString() + "@"
+                        + properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
 			"(" 
 			+ BRANCH_NO.getName() + "," + ARTICLE_NO.getName() + "," + ORDER_PROPOSAL_QTY.getName() + "," +ORDER_NO_BATCH.getName() + "," + ORDER_PROP_PROCESSED_TIME.getName() 
 			+ "," + PURCHASE_ORDER_NO.getName() + ","+ DATE_OF_PURCHASE.getName() + ","+ ORDER_PROP_DISCLAIM_NOTE.getName() 
@@ -118,7 +121,8 @@ namespace cscUnitTest
 		}
 
 		sql= "INSERT INTO " 
-			"cscpubatchorderpos " 
+			+ properties::PURCHASE_DB.toSQLReplacementString() + "@"
+                        + properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
 			"(" 
 			 + BRANCH_NO.getName() + "," + ARTICLE_NO.getName() + "," + ORDER_PROPOSAL_QTY.getName() + "," +ORDER_NO_BATCH.getName() + "," + ORDER_PROP_PROCESSED_TIME.getName() 
 			+ "," + PURCHASE_ORDER_NO.getName() + ","+ DATE_OF_PURCHASE.getName() + ","+ ORDER_PROP_DISCLAIM_NOTE.getName() 
@@ -134,7 +138,8 @@ namespace cscUnitTest
 		}
 
 		sql= "INSERT INTO " 
-			"cscpubatchorderpos " 
+			+ properties::PURCHASE_DB.toSQLReplacementString() + "@"
+                        + properties::PURCHASE_DBSRV.toSQLReplacementString() + ":pubatchorderpos "
 			"(" 
 			+ BRANCH_NO.getName() + "," + ARTICLE_NO.getName() + "," + ORDER_PROPOSAL_QTY.getName() + "," +ORDER_NO_BATCH.getName() + "," + ORDER_PROP_PROCESSED_TIME.getName() 
 			+ "," + PURCHASE_ORDER_NO.getName() + ","+ DATE_OF_PURCHASE.getName() + ","+ ORDER_PROP_DISCLAIM_NOTE.getName() 
