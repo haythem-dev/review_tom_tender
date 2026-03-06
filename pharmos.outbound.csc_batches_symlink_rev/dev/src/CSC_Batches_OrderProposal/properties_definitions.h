@@ -44,6 +44,9 @@ namespace properties
 	CONST_PROPERTY_DESCRIPTION( TRANSFER_TIME,				"transfertime",               basar::DATETIME )
 	CONST_PROPERTY_DESCRIPTION( TRANSFER_TIME_BI,			"transfertimebi",             basar::DATETIME )
     CONST_PROPERTY_DESCRIPTION( EXPECTED_GI_DATE,           "expectedgoodsindate",        basar::INT32    )
+	//
+	CONST_PROPERTY_DESCRIPTION( PURCHASE_DB,				"purchasedb",				  basar::STRING   )
+	CONST_PROPERTY_DESCRIPTION( PURCHASE_DBSRV,				"purchasedbsrv",			  basar::STRING   )
 
 } // end namespace 
 
